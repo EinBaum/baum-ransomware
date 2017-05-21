@@ -17,7 +17,7 @@ limitations under the License.
 #ifndef INFECT_H
 #define INFECT_H
 
-int baum_infect(const char *rc_files[], char test_mode);
-int baum_uninfect(const char *rc_files[], char test_mode);
+int baum_infect(const char *rc_files[]);
+int baum_uninfect(const char *rc_files[]);
 
 #endif

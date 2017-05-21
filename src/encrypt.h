@@ -14,15 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef BAUMCOMMON_H
-#define BAUMCOMMON_H
+#ifndef ENCRYPT_H
+#define ENCRYPT_H
 
-#include "baumhelper.h"
-#include <stdio.h>
+int baum_encrypt(const char *directories[], const char *extension,
+	const char *keyfile);
 
-extern char baumcommon_verbose;
-void baumcommon_setverbose(char v);
-
-#define printf_v(...) do {if (baumcommon_verbose) {printf(__VA_ARGS__); printf("\n");}} while (0);
+int baum_decrypt(const char *directories[], const char *extension,
+	const char *keyfile);
 
 #endif
