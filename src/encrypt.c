@@ -141,7 +141,10 @@ static int helper(const char *directories[], const char *extension,
 	hret = fread(key, BAUMCRYPT_KEYLEN, 1, f);
 	if (hret != 1) {
 		bp("cannot read keyfile");
+		fclose(f);
+		return 1;
 	}
+	fclose(f);
 
 	hret = helper_chdir_home();
 	if (hret != 0) {
