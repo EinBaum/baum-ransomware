@@ -55,13 +55,20 @@ void helper_closefile(int fd, off_t len, void *data) {
 	close(fd);
 }
 
-int helper_get_own_name(char *buf, size_t buflen) {
-	int hret = readlink("/proc/self/exe", buf, buflen);
-	if (hret < 0) {
-		bp("Failed to get own filename");
-		return 1;
+static char my_filename[BUFSIZ];
+static char my_filename_init = 0;
+
+const char *helper_get_own_name(void) {
+	if (!my_filename_init) {
+		int hret = readlink("/proc/self/exe",
+			my_filename, sizeof(my_filename));
+		if (hret < 0) {
+			bp("Failed to get own filename");
+			return NULL;
+		}
+		my_filename_init = 1;
 	}
-	return 0;
+	return my_filename;
 }
 
 int helper_chdir_home(void) {

@@ -27,7 +27,7 @@ int helper_putfile(const char *name, off_t len, void *data);
 int helper_openfile(const char *name, int *pfd, off_t *plen, void **pdata);
 void helper_closefile(int fd, off_t len, void *data);
 
-int helper_get_own_name(char *buf, size_t buflen);
+const char* helper_get_own_name(void);
 int helper_chdir_home(void);
 
 typedef int (*list_callback)(const char *name, void *arg);
