@@ -1,0 +1,6 @@
+[submodule "portable"]
+	path = libressl
+	url = https://github.com/libressl-portable/portable.git
+[submodule "libressl"]
+	path = libressl
+	url = https://github.com/libressl-portable/portable.git
