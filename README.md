@@ -27,3 +27,9 @@ Encrypted file format:
 1. Extension is specified in "settings.h"
 2. First 16 Bytes: AES initialization vector (AES CBC)
 3. Rest of the file: AES256 encrypted contents
+
+Todo list:
+
+* Check if files (key/data) exist before overriding them
+* Add some GUI utility
+* Create wrapper
