@@ -20,7 +20,6 @@ Building:
 ```
 make update
 make
-
 ```
 
 Encrypted file format:
