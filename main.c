@@ -105,6 +105,15 @@ int encrypt_file(const char* name, void *key) {
                 return 1;
         }
 
+	if (name_strlen >= ext_strlen) {
+		size_t orig_len = name_strlen - ext_strlen;
+		const char *file_ext = name + orig_len;
+		if (memcmp(file_ext, EXTENSION, ext_strlen) == 0) {
+			printf_v("already encrypted");
+			return 1;
+		}
+	}
+
         char name_new[PATH_MAX];
 	memcpy(name_new, name, name_strlen);
 	memcpy(name_new + name_strlen, EXTENSION, ext_strlen + 1);
