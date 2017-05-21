@@ -21,6 +21,8 @@ limitations under the License.
 
 #include <sys/types.h>
 
+char helper_fileexists(const char *name);
+
 int helper_putfile(const char *name, off_t len, void *data);
 int helper_openfile(const char *name, int *pfd, off_t *plen, void **pdata);
 void helper_closefile(int fd, off_t len, void *data);

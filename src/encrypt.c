@@ -5,9 +5,16 @@
 #include <linux/limits.h>
 
 #include "baumcommon.h"
+#include "baumhelper.h"
 #include "baumcrypt.h"
 
 int baum_createkey(const char *keyfile) {
+
+	if (!baumcommon_force && helper_fileexists(keyfile)) {
+		fprintf(stderr, "Key file '%s' already exists, "
+			"use --force to overwrite\n", keyfile);
+		return 1;
+	}
 
 	bp("Creating key and writing to '%s'", keyfile);
 
@@ -57,6 +64,11 @@ int encrypt_file(const char* name, void *arg) {
 	memcpy(name_new, name, name_strlen);
 	memcpy(name_new + name_strlen, extension, ext_strlen + 1);
 
+	if (!baumcommon_force && helper_fileexists(name_new)) {
+		bp("not encrypting: '%s' already exists", name_new);
+		return 1;
+	}
+
 	bp("encrypting: '%s' into '%s'", name, name_new);
 
 	hret = baumcrypt_encrypt(name, name_new, key);
@@ -98,12 +110,18 @@ int decrypt_file(const char* name, void *arg) {
 	size_t orig_len = (name_strlen - ext_strlen);
 	const char *file_ext = name + orig_len;
 	if (memcmp(file_ext, extension, ext_strlen) != 0) {
+		bp("file doesn't have the right extension");
 		return 1;
 	}
 
 	char name_new[PATH_MAX];
 	memcpy(name_new, name, orig_len);
 	name_new[orig_len] = '\0';
+
+	if (!baumcommon_force && helper_fileexists(name_new)) {
+		bp("not decrypting: '%s' already exists", name_new);
+		return 1;
+	}
 
 	bp("decrypting: '%s' into '%s'", name, name_new);
 

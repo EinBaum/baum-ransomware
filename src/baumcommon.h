@@ -22,9 +22,11 @@ limitations under the License.
 
 extern char baumcommon_verbose;
 extern char baumcommon_test;
+extern char baumcommon_force;
 
 void baumcommon_setverbose(char b);
 void baumcommon_settest(char b);
+void baumcommon_setforce(char b);
 
 #define bp(...) do {if (baumcommon_verbose) {printf(__VA_ARGS__); printf("\n");}} while (0);
 
