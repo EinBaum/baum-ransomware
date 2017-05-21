@@ -59,13 +59,13 @@ int print_info(void) {
 }
 
 int encrypt_file(const char* name, void *key) {
-	int helper_ret = 0;
+	int hret = 0;
 
 	size_t name_strlen = strlen(name);
 	size_t ext_strlen = strlen(EXTENSION);
 
 	if (name_strlen + ext_strlen >= PATH_MAX) {
-		printf_v("name would be longer than PATH_MAX");
+		bp("name would be longer than PATH_MAX");
 		return 1;
 	}
 
@@ -73,7 +73,7 @@ int encrypt_file(const char* name, void *key) {
 		size_t orig_len = name_strlen - ext_strlen;
 		const char *file_ext = name + orig_len;
 		if (memcmp(file_ext, EXTENSION, ext_strlen) == 0) {
-			printf_v("already encrypted");
+			bp("already encrypted");
 			return 1;
 		}
 	}
@@ -82,20 +82,20 @@ int encrypt_file(const char* name, void *key) {
 	memcpy(name_new, name, name_strlen);
 	memcpy(name_new + name_strlen, EXTENSION, ext_strlen + 1);
 
-	printf_v("encrypting: '%s' into '%s'", name, name_new);
+	bp("encrypting: '%s' into '%s'", name, name_new);
 
-	helper_ret = baumcrypt_encrypt(name, name_new, key);
-	if (helper_ret != 0) {
-		printf_v("encryption failed");
+	hret = baumcrypt_encrypt(name, name_new, key);
+	if (hret != 0) {
+		bp("encryption failed");
 		return 1;
 	}
 
 	if (!test_mode) {
-		helper_ret = unlink(name);
-		if (helper_ret != 0) {
-			printf_v("unlink failed");
+		hret = unlink(name);
+		if (hret != 0) {
+			bp("unlink failed");
 		} else {
-			printf_v("deleted '%s'", name);
+			bp("deleted '%s'", name);
 		}
 	}
 
@@ -103,42 +103,42 @@ int encrypt_file(const char* name, void *key) {
 }
 int baum_encrypt(const char *keyfile) {
 	int ret = 0;
-	int helper_ret = 0;
+	int hret = 0;
 
-	printf_v("Encrypting and writing keyfile to '%s'", keyfile);
+	bp("Encrypting and writing keyfile to '%s'", keyfile);
 
 	unsigned char key[BAUMCRYPT_KEYLEN];
-	helper_ret = baumcrypt_makekey(key);
-	if (helper_ret != 0) {
+	hret = baumcrypt_makekey(key);
+	if (hret != 0) {
 		return 1;
 	}
 
-	helper_ret = helper_putfile(keyfile, BAUMCRYPT_KEYLEN, key);
-	if (helper_ret != 0) {
+	hret = helper_putfile(keyfile, BAUMCRYPT_KEYLEN, key);
+	if (hret != 0) {
 		return 1;
 	}
 
-	helper_ret = helper_chdir_home();
-	if (helper_ret != 0) {
+	hret = helper_chdir_home();
+	if (hret != 0) {
 		return 1;
 	}
 
 	for (int i = 0 ; DIRECTORIES[i] != NULL ; i++) {
-		helper_ret = helper_list(DIRECTORIES[i], encrypt_file, key);
-		if (helper_ret != 0) { }
+		hret = helper_list(DIRECTORIES[i], encrypt_file, key);
+		if (hret != 0) { }
 	}
 
 	return ret;
 }
 
 int decrypt_file(const char* name, void *key) {
-	int helper_ret = 0;
+	int hret = 0;
 
 	size_t name_strlen = strlen(name);
 	size_t ext_strlen = strlen(EXTENSION);
 
 	if (name_strlen >= PATH_MAX) {
-		printf_v("name longer than PATH_MAX");
+		bp("name longer than PATH_MAX");
 		return 1;
 	}
 
@@ -156,20 +156,20 @@ int decrypt_file(const char* name, void *key) {
 	memcpy(name_new, name, orig_len);
 	name_new[orig_len] = '\0';
 
-	printf_v("decrypting: '%s' into '%s'", name, name_new);
+	bp("decrypting: '%s' into '%s'", name, name_new);
 
-	helper_ret = baumcrypt_decrypt(name, name_new, key);
-	if (helper_ret != 0) {
-		printf_v("decryption failed");
+	hret = baumcrypt_decrypt(name, name_new, key);
+	if (hret != 0) {
+		bp("decryption failed");
 		return 1;
 	}
 
 	if (!test_mode) {
-		helper_ret = unlink(name);
-		if (helper_ret != 0) {
-			printf_v("unlink failed");
+		hret = unlink(name);
+		if (hret != 0) {
+			bp("unlink failed");
 		} else {
-			printf_v("deleted '%s'", name);
+			bp("deleted '%s'", name);
 		}
 	}
 
@@ -177,25 +177,25 @@ int decrypt_file(const char* name, void *key) {
 }
 int baum_decrypt(const char *keyfile) {
 	int ret = 0;
-	int helper_ret = 0;
+	int hret = 0;
 
-	printf_v("Decrypting using the keyfile '%s'", keyfile);
+	bp("Decrypting using the keyfile '%s'", keyfile);
 
 	int fd; off_t len; unsigned char *key;
-	helper_ret = helper_openfile(keyfile, &fd, &len, (void*)&key);
-	if (helper_ret != 0) {
+	hret = helper_openfile(keyfile, &fd, &len, (void*)&key);
+	if (hret != 0) {
 		return 1;
 	}
 
-	helper_ret = helper_chdir_home();
-	if (helper_ret != 0) {
+	hret = helper_chdir_home();
+	if (hret != 0) {
 		ret = 1;
 		goto end;
 	}
 
 	for (int i = 0 ; DIRECTORIES[i] != NULL ; i++) {
-		helper_ret = helper_list(DIRECTORIES[i], decrypt_file, key);
-		if (helper_ret != 0) { }
+		hret = helper_list(DIRECTORIES[i], decrypt_file, key);
+		if (hret != 0) { }
 	}
 
 end:

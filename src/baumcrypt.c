@@ -13,9 +13,9 @@
 #define BUFSIZE (1024)
 
 int baumcrypt_makekey(unsigned char *key_out) {
-	int helper_ret = RAND_bytes(key_out, BAUMCRYPT_KEYLEN);
-	if (helper_ret == 0) {
-		printf_v("RAND_bytes failed");
+	int hret = RAND_bytes(key_out, BAUMCRYPT_KEYLEN);
+	if (hret == 0) {
+		bp("RAND_bytes failed");
 		return 1;
 	}
 	return 0;
@@ -24,17 +24,17 @@ int baumcrypt_makekey(unsigned char *key_out) {
 static int baumcrypt_helper2(FILE *file_in, FILE *file_out,
 	unsigned char *key, unsigned char *iv, char mode_encrypt) {
 
-	int helper_ret = 0;
+	int hret = 0;
 
 	EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
 	if (!ctx) {
-		printf_v("EVP_CIPHER_CTX_new failed");
+		bp("EVP_CIPHER_CTX_new failed");
 		return 1;
 	}
-	helper_ret = EVP_CipherInit(ctx, EVP_aes_256_cbc(),
+	hret = EVP_CipherInit(ctx, EVP_aes_256_cbc(),
 		key, iv, mode_encrypt);
-	if (helper_ret == 0) {
-		printf_v("EVP_CipherInit failed");
+	if (hret == 0) {
+		bp("EVP_CipherInit failed");
 		return 1;
 	}
 
@@ -46,15 +46,15 @@ static int baumcrypt_helper2(FILE *file_in, FILE *file_out,
 
 	for (;;) {
 		size_t num_read = fread(buf_in, 1, BUFSIZE, file_in);
-		helper_ret = EVP_CipherUpdate(ctx, buf_out, &out_len, buf_in, num_read);
-		if (helper_ret == 0) {
-			printf_v("EVP_CipherUpdate failed");
+		hret = EVP_CipherUpdate(ctx, buf_out, &out_len, buf_in, num_read);
+		if (hret == 0) {
+			bp("EVP_CipherUpdate failed");
 			ret = 1;
 			goto end;
 		}
-		helper_ret = fwrite(buf_out, 1, out_len, file_out);
-		if (helper_ret != out_len) {
-			printf_v("fwrite failed");
+		hret = fwrite(buf_out, 1, out_len, file_out);
+		if (hret != out_len) {
+			bp("fwrite failed");
 			ret = 1;
 			goto end;
 		}
@@ -63,15 +63,15 @@ static int baumcrypt_helper2(FILE *file_in, FILE *file_out,
 		}
 	}
 
-	helper_ret = EVP_CipherFinal_ex(ctx, buf_out, &out_len);
-	if (helper_ret == 0) {
-		printf_v("EVP_CipherFinal_ex failed");
+	hret = EVP_CipherFinal_ex(ctx, buf_out, &out_len);
+	if (hret == 0) {
+		bp("EVP_CipherFinal_ex failed");
 		ret = 1;
 		goto end;
 	}
-	helper_ret = fwrite(buf_out, 1, out_len, file_out);
-	if (helper_ret != out_len) {
-		printf_v("final fwrite failed");
+	hret = fwrite(buf_out, 1, out_len, file_out);
+	if (hret != out_len) {
+		bp("final fwrite failed");
 		ret = 1;
 		goto end;
 	}
@@ -83,12 +83,12 @@ end:
 static int baumcrypt_helper1(const char *name_in, const char *name_out,
 	unsigned char *key, char mode_encrypt) {
 
-	int helper_ret = 0;
+	int hret = 0;
 	unsigned char iv[IV_LEN];
 
 	FILE *file_in = fopen(name_in, "rb");
 	if (!file_in) {
-		printf_v("cannot open for reading '%s'", name_in);
+		bp("cannot open for reading '%s'", name_in);
 		return 1;
 	}
 
@@ -96,36 +96,36 @@ static int baumcrypt_helper1(const char *name_in, const char *name_out,
 
 	FILE *file_out = fopen(name_out, "wb");
 	if (!file_out) {
-		printf_v("cannot open for writing '%s'", name_out);
+		bp("cannot open for writing '%s'", name_out);
 		ret = 1;
 		goto end1;
 	}
 
 	if (mode_encrypt) {
-		helper_ret = RAND_bytes(iv, IV_LEN);
-		if (helper_ret == 0) {
-			printf_v("RAND_bytes failed");
+		hret = RAND_bytes(iv, IV_LEN);
+		if (hret == 0) {
+			bp("RAND_bytes failed");
 			ret = 1;
 			goto end2;
 		}
-		helper_ret = fwrite(iv, IV_LEN, 1, file_out);
-		if (helper_ret != 1) {
-			printf_v("failed to write IV");
+		hret = fwrite(iv, IV_LEN, 1, file_out);
+		if (hret != 1) {
+			bp("failed to write IV");
 			ret = 1;
 			goto end2;
 		}
 	} else {
-		helper_ret = fread(iv, IV_LEN, 1, file_in);
-		if (helper_ret != 1) {
-			printf_v("failed to read IV");
+		hret = fread(iv, IV_LEN, 1, file_in);
+		if (hret != 1) {
+			bp("failed to read IV");
 			ret = 1;
 			goto end2;
 		}
 	}
 
-	helper_ret = baumcrypt_helper2(file_in, file_out, key, iv, mode_encrypt);
-	if (helper_ret != 0) {
-		printf_v("operation failed");
+	hret = baumcrypt_helper2(file_in, file_out, key, iv, mode_encrypt);
+	if (hret != 0) {
+		bp("operation failed");
 		ret = 1;
 		goto end2;
 	}
