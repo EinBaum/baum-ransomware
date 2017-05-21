@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NAME=baum-ransomware
+NAME=baumcrypt
 BIN=../$NAME
 KEY=.$NAME.key
 
