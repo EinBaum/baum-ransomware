@@ -18,11 +18,11 @@ limitations under the License.
 #define BAUMCOMMON_H
 
 #include "baumhelper.h"
-
 #include <stdio.h>
 
 extern char baumcommon_verbose;
 void baumcommon_setverbose(char v);
+
 #define printf_v(...) do {if (baumcommon_verbose) {printf(__VA_ARGS__); printf("\n");}} while (0);
 
 #endif

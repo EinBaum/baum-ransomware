@@ -15,9 +15,13 @@ LIBEXTRA := -lpthread
 
 README := README.md
 
-.PHONY: all create_readme clean distclean
+.PHONY: all update create_readme clean distclean
 
 all: $(BIN)
+
+update:
+	git pull
+	git submodule update --init --recursive
 
 create_readme: $(BIN)
 	echo "\`\`\`"		> $(README)
@@ -26,6 +30,7 @@ create_readme: $(BIN)
 
 $(BIN): $(OBJ) $(LIBPATH)
 	$(CC) $(FLAGS) $(FLAGS_LD) $(OBJ) -L$(LIBDIR) -l$(LIB) $(LIBEXTRA) -o $(BIN)
+	upx $(BIN)
 
 .c.o:
 	$(CC) $(FLAGS) -I$(INCLUDES) -c $< -o $@
