@@ -2,7 +2,8 @@ CC := gcc
 FLAGS := -Wall -pedantic -std=c99 -flto -Os
 FLAGS_LD := -static -s -Wl,--gc-sections
 BIN := baum-ransomware
-SRC := $(wildcard *.c)
+SRCDIR := src
+SRC := $(wildcard $(SRCDIR)/*.c)
 OBJ := $(SRC:.c=.o)
 
 SSL_DIR := libressl
