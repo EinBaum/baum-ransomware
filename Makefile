@@ -5,13 +5,16 @@ BIN := baum-ransomware
 SRC := $(wildcard *.c)
 OBJ := $(SRC:.c=.o)
 
-SSLPATH := libressl
-INCLUDES := $(SSLPATH)/include
-LIBDIR := $(SSLPATH)/crypto/.libs
-LIB := crypto
-LIBPATH := $(LIBDIR)/lib$(LIB).so
+SSL_DIR := libressl
+SSL_DIRLIB := $(SSL_DIR)/crypto/.libs
+SSL_LIB := crypto
+SSL_LIBPATH := $(SSL_DIRLIB)/lib$(SSL_LIB).so
 
-LIBEXTRA := -lpthread
+UPX_DIR := upx
+UPX_BINPATH := $(UPX_DIR)/src/upx.out
+
+LIBEXTRA := -L$(SSL_DIRLIB) -l$(SSL_LIB) -lpthread
+INCLUDES := -I$(SSL_DIR)/include
 
 README := README.md
 
@@ -27,22 +30,29 @@ create_readme: $(BIN)
 	echo "\`\`\`"		> $(README)
 	./$(BIN) --help		>> $(README)
 	echo "\`\`\`"		>> $(README)
+	echo ""			>> $(README)
+	cat INFO.md		>> $(README)
 
-$(BIN): $(OBJ) $(LIBPATH)
-	$(CC) $(FLAGS) $(FLAGS_LD) $(OBJ) -L$(LIBDIR) -l$(LIB) $(LIBEXTRA) -o $(BIN)
-	upx $(BIN)
+$(BIN): $(OBJ) $(SSL_LIBPATH)
+	$(CC) $(FLAGS) $(FLAGS_LD) $(OBJ) $(LIBEXTRA) -o $(BIN)
+	$(UPX_BINPATH) $(BIN)
 
 .c.o:
-	$(CC) $(FLAGS) -I$(INCLUDES) -c $< -o $@
+	$(CC) $(FLAGS) $(INCLUDES) -c $< -o $@
 
-$(LIBPATH):
-	cd $(SSLPATH)	; \
+$(SSL_LIBPATH):
+	cd $(SSL_DIR)	; \
 	./autogen.sh	; \
 	./configure	; \
 	make
 
+$(UPX_BINPATH):
+	cd $(UPX_DIR)	; \
+	make all
+
 clean:
-	rm -f $(OBJ) $(BIN)
+	-rm -f $(OBJ) $(BIN)
 
 distclean: clean
-	make -C $(SSLPATH) distclean
+	-make -C $(SSL_DIR) distclean
+	-make -C $(UPX_DIR) distclean

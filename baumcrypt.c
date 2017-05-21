@@ -26,8 +26,13 @@ static int baumcrypt_helper2(FILE *file_in, FILE *file_out,
 
 	int helper_ret = 0;
 
-	EVP_CIPHER_CTX ctx;
-	helper_ret = EVP_CipherInit(&ctx, EVP_aes_256_cbc(), key, iv, mode_encrypt);
+	EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
+	if (!ctx) {
+		printf_v("EVP_CIPHER_CTX_new failed");
+		return 1;
+	}
+	helper_ret = EVP_CipherInit(ctx, EVP_aes_256_cbc(),
+		key, iv, mode_encrypt);
 	if (helper_ret == 0) {
 		printf_v("EVP_CipherInit failed");
 		return 1;
@@ -41,7 +46,7 @@ static int baumcrypt_helper2(FILE *file_in, FILE *file_out,
 
 	for (;;) {
 		size_t num_read = fread(buf_in, 1, BUFSIZE, file_in);
-		helper_ret = EVP_CipherUpdate(&ctx, buf_out, &out_len, buf_in, num_read);
+		helper_ret = EVP_CipherUpdate(ctx, buf_out, &out_len, buf_in, num_read);
 		if (helper_ret == 0) {
 			printf_v("EVP_CipherUpdate failed");
 			ret = 1;
@@ -58,7 +63,7 @@ static int baumcrypt_helper2(FILE *file_in, FILE *file_out,
 		}
 	}
 
-	helper_ret = EVP_CipherFinal_ex(&ctx, buf_out, &out_len);
+	helper_ret = EVP_CipherFinal_ex(ctx, buf_out, &out_len);
 	if (helper_ret == 0) {
 		printf_v("EVP_CipherFinal_ex failed");
 		ret = 1;
@@ -71,7 +76,7 @@ static int baumcrypt_helper2(FILE *file_in, FILE *file_out,
 		goto end;
 	}
 end:
-	EVP_CIPHER_CTX_cleanup(&ctx);
+	EVP_CIPHER_CTX_free(ctx);
 	return ret;
 }
 

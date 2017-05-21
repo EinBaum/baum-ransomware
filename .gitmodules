@@ -3,4 +3,4 @@
 	url = https://github.com/libressl-portable/portable
 [submodule "upx"]
 	path = upx
-	url = https://github.com/upx/upx.git
+	url = https://github.com/ismail/upx
