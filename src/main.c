@@ -28,13 +28,6 @@ const char *rc_files[] = {".bashrc", ".zshrc", NULL};
 
 void help(void) {
 	printf("%s - %s\n\n", PROGRAM_NAME, PROGRAM_DESC);
-	printf("Usage example:\n");
-	printf("%s [(-h|--help)] [(-V|--version)] "
-		"[(-v|--verbose)] [(-t|--test)] "
-		"[(-f|--force)] [(-k|--key) keyfile] "
-		"[(-e|--encrypt) keyfile] [(-d|--decrypt) keyfile] "
-		"[(-p|--print)] [(-i|--infect)] [(-u|--uninfect)]\n\n",
-		PROGRAM_NAME);
 	printf("Options:\n");
 	printf("-h or --help: Displays this information.\n");
 	printf("-V or --version: Displays the current version number.\n");

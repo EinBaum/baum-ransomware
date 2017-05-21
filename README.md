@@ -1,9 +1,6 @@
 ```
 baumcrypt 1.0 - useful utility to encrypt your home folder Kappa
 
-Usage example:
-baumcrypt 1.0 [(-h|--help)] [(-V|--version)] [(-v|--verbose)] [(-t|--test)] [(-f|--force)] [(-k|--key) keyfile] [(-e|--encrypt) keyfile] [(-d|--decrypt) keyfile] [(-p|--print)] [(-i|--infect)] [(-u|--uninfect)]
-
 Options:
 -h or --help: Displays this information.
 -V or --version: Displays the current version number.
