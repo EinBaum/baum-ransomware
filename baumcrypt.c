@@ -60,7 +60,7 @@ static int baumcrypt_helper2(FILE *file_in, FILE *file_out,
 
 	helper_ret = EVP_CipherFinal_ex(&ctx, buf_out, &out_len);
 	if (helper_ret == 0) {
-		printf_v("EVP_CipherFinal failed");
+		printf_v("EVP_CipherFinal_ex failed");
 		ret = 1;
 		goto end;
 	}
