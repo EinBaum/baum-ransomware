@@ -31,11 +31,11 @@ static int baumcrypt_helper2(FILE *file_in, FILE *file_out,
 		bp("EVP_CIPHER_CTX_new failed");
 		return 1;
 	}
-	hret = EVP_CipherInit(ctx, EVP_aes_256_cbc(),
-		key, iv, mode_encrypt);
+	hret = EVP_CipherInit(ctx, EVP_aes_256_cbc(), key, iv, 			mode_encrypt);
 	if (hret == 0) {
 		bp("EVP_CipherInit failed");
-		return 1;
+		ret = 1;
+		goto end;
 	}
 
 	unsigned char *buf_in = alloca(BUFSIZE);
