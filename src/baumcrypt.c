@@ -25,6 +25,7 @@ static int baumcrypt_helper2(FILE *file_in, FILE *file_out,
 	unsigned char *key, unsigned char *iv, char mode_encrypt) {
 
 	int hret = 0;
+	int ret = 0;
 
 	EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
 	if (!ctx) {
@@ -41,8 +42,6 @@ static int baumcrypt_helper2(FILE *file_in, FILE *file_out,
 	unsigned char *buf_in = alloca(BUFSIZE);
 	unsigned char *buf_out = alloca(BUFSIZE + EVP_MAX_BLOCK_LENGTH);
 	int out_len = 0;
-
-	int ret = 0;
 
 	for (;;) {
 		size_t num_read = fread(buf_in, 1, BUFSIZE, file_in);
