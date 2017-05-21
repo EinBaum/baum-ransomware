@@ -1,10 +1,12 @@
 #include "baumhelper.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <libgen.h>
 #include <ftw.h>
 
 #include "baumcommon.h"
@@ -57,6 +59,7 @@ void helper_closefile(int fd, off_t len, void *data) {
 
 static char my_filename[BUFSIZ];
 static char my_filename_init = 0;
+static const char *my_basename = NULL;
 
 const char *helper_get_own_name(void) {
 	if (!my_filename_init) {
@@ -69,6 +72,22 @@ const char *helper_get_own_name(void) {
 		my_filename_init = 1;
 	}
 	return my_filename;
+}
+
+const char *helper_get_own_basename(void) {
+	if (!my_basename) {
+		const char *filename = helper_get_own_name();
+		if (!filename) {
+			return NULL;
+		}
+		const char *occ = strrchr(filename, '/');
+		if (!occ) {
+			my_basename = filename;
+		} else {
+			my_basename = (occ + 1);
+		}
+	}
+	return my_basename;
 }
 
 int helper_chdir_home(void) {
