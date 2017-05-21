@@ -7,6 +7,24 @@
 #include "baumcommon.h"
 #include "baumcrypt.h"
 
+int baum_createkey(const char *keyfile) {
+
+	bp("Creating key and writing to '%s'", keyfile);
+
+	unsigned char key[BAUMCRYPT_KEYLEN];
+	int hret = baumcrypt_makekey(key);
+	if (hret != 0) {
+		return 1;
+	}
+
+	hret = helper_putfile(keyfile, BAUMCRYPT_KEYLEN, key);
+	if (hret != 0) {
+		return 1;
+	}
+
+	return 0;
+}
+
 typedef struct {
 	unsigned char *key;
 	const char *extension;
@@ -58,38 +76,6 @@ int encrypt_file(const char* name, void *arg) {
 
 	return 0;
 }
-int baum_encrypt(const char *directories[], const char *extension,
-	const char *keyfile) {
-
-	int ret = 0;
-	int hret = 0;
-
-	bp("Encrypting and writing keyfile to '%s'", keyfile);
-
-	unsigned char key[BAUMCRYPT_KEYLEN];
-	hret = baumcrypt_makekey(key);
-	if (hret != 0) {
-		return 1;
-	}
-
-	hret = helper_putfile(keyfile, BAUMCRYPT_KEYLEN, key);
-	if (hret != 0) {
-		return 1;
-	}
-
-	hret = helper_chdir_home();
-	if (hret != 0) {
-		return 1;
-	}
-
-	for (int i = 0 ; directories[i] != NULL ; i++) {
-		tmp_helper arg = {key, extension};
-		hret = helper_list(directories[i], encrypt_file, &arg);
-		if (hret != 0) { }
-	}
-
-	return ret;
-}
 
 int decrypt_file(const char* name, void *arg) {
 	int hret = 0;
@@ -138,34 +124,52 @@ int decrypt_file(const char* name, void *arg) {
 
 	return 0;
 }
-int baum_decrypt(const char *directories[], const char *extension,
-	const char *keyfile) {
 
-	int ret = 0;
+static int helper(const char *directories[], const char *extension,
+	const char *keyfile, char mode_encrypt) {
+
 	int hret = 0;
 
-	bp("Decrypting using the keyfile '%s'", keyfile);
+	bp("Using the keyfile '%s'", keyfile);
 
-	int fd; off_t len; unsigned char *key;
-	hret = helper_openfile(keyfile, &fd, &len, (void*)&key);
-	if (hret != 0) {
+	unsigned char key[BAUMCRYPT_KEYLEN];
+	FILE *f = fopen(keyfile, "rb");
+	if (!f) {
+		bp("cannot open keyfile");
 		return 1;
+	}
+	hret = fread(key, BAUMCRYPT_KEYLEN, 1, f);
+	if (hret != 1) {
+		bp("cannot read keyfile");
 	}
 
 	hret = helper_chdir_home();
 	if (hret != 0) {
-		ret = 1;
-		goto end;
+		return 1;
 	}
 
 	for (int i = 0 ; directories[i] != NULL ; i++) {
 		tmp_helper arg = {key, extension};
-		hret = helper_list(directories[i], decrypt_file, &arg);
+		hret = helper_list(directories[i],
+			(mode_encrypt ? encrypt_file : decrypt_file),
+			&arg);
 		if (hret != 0) { }
 	}
 
-end:
-	helper_closefile(fd, len, key);
-	return ret;
+	return 0;
+}
+
+int baum_encrypt(const char *directories[], const char *extension,
+	const char *keyfile) {
+
+	bp("Encrypting");
+	return helper(directories, extension, keyfile, 1);
+}
+
+int baum_decrypt(const char *directories[], const char *extension,
+	const char *keyfile) {
+
+	bp("Decrypting");
+	return helper(directories, extension, keyfile, 0);
 }
 

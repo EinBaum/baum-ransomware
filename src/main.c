@@ -29,18 +29,22 @@ const char *rc_files[] = {".bashrc", ".zshrc", NULL};
 void help(void) {
 	printf("%s - %s\n\n", PROGRAM_NAME, PROGRAM_DESC);
 	printf("Usage example:\n");
-	printf("%s [(-h|--help)] [(-v|--verbose)] [(-V|--version)]"
-		"[(-e|--encrypt) keyfile] [(-d|--decrypt) keyfile]"
-		"[(-p|--print)] [(-i|--infect)]\n\n", PROGRAM_NAME);
+	printf("%s [(-h|--help)] [(-v|--verbose)] [(-V|--version)] "
+		"[(-k|--key) keyfile] "
+		"[(-e|--encrypt) keyfile] [(-d|--decrypt) keyfile] "
+		"[(-p|--print)] [(-i|--infect)] [(-u|--uninfect)]\n\n",
+		PROGRAM_NAME);
 	printf("Options:\n");
 	printf("-h or --help: Displays this information.\n");
 	printf("-V or --version: Displays the current version number.\n");
 	printf("-v or --verbose: Verbose mode on.\n");
 	printf("-t or --test: Do not delete or alter files.\n");
-	printf("-e or --encrypt keyfile: Encrypt user home and save key file.\n");
+	printf("-k or --key: Create random key and write it to a file.\n");
+	printf("-e or --encrypt keyfile: Encrypt user home using a key file.\n");
 	printf("-d or --decrypt keyfile: Decrypt user home using a key file.\n");
 	printf("-p or --print: Display information (default).\n");
 	printf("-i or --infect: Make -p information appear on startup.\n");
+	printf("-u or --uninfect: Remove infect information.\n");
 }
 
 void version(void) {
@@ -55,23 +59,26 @@ int print_info(void) {
 int main(int argc, char **argv) {
 	char opt_help = 0;
 	char opt_version = 0;
+	char opt_key = 0;
 	char opt_encrypt = 0;
 	char opt_decrypt = 0;
 	char opt_print = 0;
 	char opt_infect = 0;
 	char opt_uninfect = 0;
 
+	char *opt_key_file = NULL;
 	char *opt_encrypt_file = NULL;
 	char *opt_decrypt_file = NULL;
 
 	int next_option;
-	const char* const short_options = "hVvte:d:piu";
+	const char* const short_options = "hVvtk:e:d:piu";
 	const struct option long_options[] =
 	{
 		{ "help",	0, NULL, 'h' },
 		{ "version",	0, NULL, 'V' },
 		{ "verbose",	0, NULL, 'v' },
 		{ "test",	0, NULL, 't' },
+		{ "key",	1, NULL, 'k' },
 		{ "encrypt",	1, NULL, 'e' },
 		{ "decrypt",	1, NULL, 'd' },
 		{ "print",	0, NULL, 'p' },
@@ -99,6 +106,10 @@ int main(int argc, char **argv) {
 			break;
 		case 't':
 			baumcommon_settest(1);
+			break;
+		case 'k':
+			opt_key = 1;
+			opt_key_file = optarg;
 			break;
 		case 'e':
 			opt_encrypt = 1;
@@ -133,7 +144,7 @@ int main(int argc, char **argv) {
 		return 0;
 	}
 
-	int selected = (opt_encrypt + opt_decrypt
+	int selected = (opt_encrypt + opt_decrypt + opt_key
 		+ opt_print + opt_infect + opt_uninfect);
 
 	if (selected > 1) {
@@ -145,11 +156,8 @@ int main(int argc, char **argv) {
 	if (opt_print) {
 		return print_info();
 	}
-	if (opt_infect) {
-		return baum_infect(rc_files);
-	}
-	if (opt_uninfect) {
-		return baum_uninfect(rc_files);
+	if (opt_key) {
+		return baum_createkey(opt_key_file);
 	}
 	if (opt_encrypt) {
 		return baum_encrypt(DIRECTORIES,
@@ -158,6 +166,12 @@ int main(int argc, char **argv) {
 	if (opt_decrypt) {
 		return baum_decrypt(DIRECTORIES,
 			EXTENSION, opt_decrypt_file);
+	}
+	if (opt_infect) {
+		return baum_infect(rc_files);
+	}
+	if (opt_uninfect) {
+		return baum_uninfect(rc_files);
 	}
 
 	return 0;

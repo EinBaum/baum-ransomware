@@ -17,6 +17,8 @@ limitations under the License.
 #ifndef ENCRYPT_H
 #define ENCRYPT_H
 
+int baum_createkey(const char *keyfile);
+
 int baum_encrypt(const char *directories[], const char *extension,
 	const char *keyfile);
 

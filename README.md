@@ -2,17 +2,19 @@
 baumcrypt 1.0 - useful utility to encrypt your home folder Kappa
 
 Usage example:
-baumcrypt 1.0 [(-h|--help)] [(-v|--verbose)] [(-V|--version)][(-e|--encrypt) keyfile] [(-d|--decrypt) keyfile][(-p|--print)] [(-i|--infect)]
+baumcrypt 1.0 [(-h|--help)] [(-v|--verbose)] [(-V|--version)] [(-k|--key) keyfile] [(-e|--encrypt) keyfile] [(-d|--decrypt) keyfile] [(-p|--print)] [(-i|--infect)] [(-u|--uninfect)]
 
 Options:
 -h or --help: Displays this information.
 -V or --version: Displays the current version number.
 -v or --verbose: Verbose mode on.
 -t or --test: Do not delete or alter files.
--e or --encrypt keyfile: Encrypt user home and save key file.
+-k or --key: Create random key and write it to a file.
+-e or --encrypt keyfile: Encrypt user home using a key file.
 -d or --decrypt keyfile: Decrypt user home using a key file.
 -p or --print: Display information (default).
 -i or --infect: Make -p information appear on startup.
+-u or --uninfect: Remove infect information.
 ```
 
 Building:

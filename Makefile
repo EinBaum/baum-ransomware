@@ -23,6 +23,9 @@ README := README.md
 
 all: $(BIN)
 
+release: $(BIN) $(UPX_BINPATH)
+	$(UPX_BINPATH) $(BIN)
+
 update:
 	git pull
 	git submodule update --init --recursive
@@ -36,9 +39,8 @@ create_readme: $(BIN)
 	echo ""			>> $(README)
 	cat TODO.md		>> $(README)
 
-$(BIN): $(OBJ) $(SSL_LIBPATH) $(UPX_BINPATH)
+$(BIN): $(OBJ) $(SSL_LIBPATH)
 	$(CC) $(FLAGS) $(FLAGS_LD) $(OBJ) $(LIBEXTRA) -o $(BIN)
-	$(UPX_BINPATH) $(BIN)
 
 .c.o:
 	$(CC) $(FLAGS) $(INCLUDES) -c $< -o $@
