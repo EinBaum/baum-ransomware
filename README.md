@@ -32,4 +32,6 @@ Todo list:
 
 * Check if files (key/data) exist before overriding them
 * Add some GUI utility
-* Create wrapper
+* Create wrapper that does everything
+* Transfer key to the internet
+* Create webserver
