@@ -19,7 +19,7 @@ Building:
 
 ```
 make update
-make
+make release
 ```
 
 Encrypted file format:
