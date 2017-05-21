@@ -32,8 +32,10 @@ create_readme: $(BIN)
 	echo "\`\`\`"		>> $(README)
 	echo ""			>> $(README)
 	cat INFO.md		>> $(README)
+	echo ""			>> $(README)
+	cat TODO.md		>> $(README)
 
-$(BIN): $(OBJ) $(SSL_LIBPATH)
+$(BIN): $(OBJ) $(SSL_LIBPATH) $(UPX_BINPATH)
 	$(CC) $(FLAGS) $(FLAGS_LD) $(OBJ) $(LIBEXTRA) -o $(BIN)
 	$(UPX_BINPATH) $(BIN)
 
