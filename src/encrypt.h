@@ -28,7 +28,4 @@ int baum_decrypt(const char *directories[], const char *extension,
 	const char *keyfile);
 int baum_decrypt_stdin(const char *directories[], const char *extension);
 
-
-
-
 #endif

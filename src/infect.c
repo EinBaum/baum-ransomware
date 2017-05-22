@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "baumcommon.h"
+#include "baumhelper.h"
 
 int baum_infect(const char *rc_files[]) {
 	int hret = 0;

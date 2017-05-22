@@ -17,8 +17,6 @@ limitations under the License.
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include <stdio.h>
-
 const char *PROGRAM_NAME =
 	"baumcrypt 1.0";
 

@@ -17,7 +17,6 @@ limitations under the License.
 #ifndef BAUMCOMMON_H
 #define BAUMCOMMON_H
 
-#include "baumhelper.h"
 #include <stdio.h>
 
 extern char baumcommon_verbose;
