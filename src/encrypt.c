@@ -32,6 +32,26 @@ int baum_createkey(const char *keyfile) {
 	return 0;
 }
 
+int baum_createkey_stdout(void) {
+	bp("Creating key and writing to stdout");
+
+	unsigned char key[BAUMCRYPT_KEYLEN];
+	int hret = baumcrypt_makekey(key);
+	if (hret != 0) {
+		return 1;
+	}
+
+	freopen(NULL, "wb", stdout);
+
+	hret = write(STDOUT_FILENO, key, BAUMCRYPT_KEYLEN);
+	if (hret != BAUMCRYPT_KEYLEN) {
+		bp("Failed to write key");
+		return 1;
+	}
+
+	return 0;
+}
+
 typedef struct {
 	unsigned char *key;
 	const char *extension;
@@ -173,7 +193,7 @@ static int helper(const char *directories[], const char *extension,
 	}
 	hret = fread(key, BAUMCRYPT_KEYLEN, 1, f);
 	if (hret != 1) {
-		be("Cannot read keyfile");
+		be("Cannot read %d bytes from the keyfile", BAUMCRYPT_KEYLEN);
 		fclose(f);
 		return 1;
 	}
@@ -197,9 +217,12 @@ static int helper(const char *directories[], const char *extension,
 
 int baum_encrypt(const char *directories[], const char *extension,
 	const char *keyfile) {
-
 	bp("Encrypting");
 	return helper(directories, extension, keyfile, 1);
+}
+int baum_encrypt_stdin(const char *directories[], const char *extension) {
+	bp("Encrypting from stdin");
+	return helper(directories, extension, "/dev/stdin", 1);
 }
 
 int baum_decrypt(const char *directories[], const char *extension,
@@ -207,5 +230,9 @@ int baum_decrypt(const char *directories[], const char *extension,
 
 	bp("Decrypting");
 	return helper(directories, extension, keyfile, 0);
+}
+int baum_decrypt_stdin(const char *directories[], const char *extension) {
+	bp("Decrypting from stdin");
+	return helper(directories, extension, "/dev/stdin", 0);
 }
 

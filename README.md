@@ -7,9 +7,12 @@ Options:
 -v or --verbose: Verbose mode on.
 -t or --test: Do not delete or alter files.
 -f or --force: Overwrite files even if they exist.
--k or --key: Create random key and write it to a file.
--e or --encrypt keyfile: Encrypt user home using a key file.
--d or --decrypt keyfile: Decrypt user home using a key file.
+-k or --key file: Create random key and write it to a file.
+-K or --key-stdout: Create random key and write it to stdout.
+-e or --encrypt file: Encrypt user home using a key file.
+-E or --encrypt-stdin: Encrypt user home using a key from stdin.
+-d or --decrypt file: Decrypt user home using a key file.
+-D or --decrypt-stdin: Decrypt user home using a key from stdin.
 -p or --print: Display information (default).
 -i or --infect: Make -p information appear on startup.
 -u or --uninfect: Remove infect information.

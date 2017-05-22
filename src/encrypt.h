@@ -18,11 +18,17 @@ limitations under the License.
 #define ENCRYPT_H
 
 int baum_createkey(const char *keyfile);
+int baum_createkey_stdout(void);
 
 int baum_encrypt(const char *directories[], const char *extension,
 	const char *keyfile);
+int baum_encrypt_stdin(const char *directories[], const char *extension);
 
 int baum_decrypt(const char *directories[], const char *extension,
 	const char *keyfile);
+int baum_decrypt_stdin(const char *directories[], const char *extension);
+
+
+
 
 #endif

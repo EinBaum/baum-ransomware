@@ -1,15 +1,16 @@
 CC := gcc
-FLAGS := -Wall -pedantic -std=c99 -flto -Os
-FLAGS_LD := -static -s -Wl,--gc-sections
+CFLAGS := -Wall -pedantic -std=c99 -flto -Os
+LDFLAGS := -static -s -Wl,--gc-sections
 BIN := baumcrypt
 SRCDIR := src
 SRC := $(wildcard $(SRCDIR)/*.c)
 OBJ := $(SRC:.c=.o)
+HEADERS := $(wildcard $(SRCDIR)/*.h)
 
 SSL_DIR := libressl
 SSL_DIRLIB := $(SSL_DIR)/crypto/.libs
 SSL_LIB := crypto
-SSL_LIBPATH := $(SSL_DIRLIB)/lib$(SSL_LIB).so
+SSL_LIBPATH := $(SSL_DIRLIB)/lib$(SSL_LIB).a
 
 UPX_DIR := upx
 UPX_BINPATH := $(UPX_DIR)/src/upx.out
@@ -40,10 +41,10 @@ create_readme: $(BIN)
 	cat TODO.md		>> $(README)
 
 $(BIN): $(OBJ) $(SSL_LIBPATH)
-	$(CC) $(FLAGS) $(FLAGS_LD) $(OBJ) $(LIBEXTRA) -o $(BIN)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJ) $(LIBEXTRA) -o $(BIN)
 
-.c.o:
-	$(CC) $(FLAGS) $(INCLUDES) -c $< -o $@
+%.o: %.c $(HEADERS)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 $(SSL_LIBPATH):
 	cd $(SSL_DIR)	; \
