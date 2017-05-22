@@ -11,7 +11,7 @@
 int baum_createkey(const char *keyfile) {
 
 	if (!baumcommon_force && helper_fileexists(keyfile)) {
-		fprintf(stderr, "Key file '%s' already exists, "
+		be("Key file '%s' already exists, "
 			"use --force to overwrite\n", keyfile);
 		return 1;
 	}
@@ -37,7 +37,7 @@ typedef struct {
 	const char *extension;
 } tmp_helper;
 
-int encrypt_file(const char* name, void *arg) {
+static int encrypt_file(const char* name, void *arg) {
 	int hret = 0;
 
 	unsigned char *key = ((tmp_helper*)arg)->key;
@@ -104,7 +104,7 @@ int encrypt_file(const char* name, void *arg) {
 	return 0;
 }
 
-int decrypt_file(const char* name, void *arg) {
+static int decrypt_file(const char* name, void *arg) {
 	int hret = 0;
 
 	unsigned char *key = ((tmp_helper*)arg)->key;
@@ -168,12 +168,12 @@ static int helper(const char *directories[], const char *extension,
 	unsigned char key[BAUMCRYPT_KEYLEN];
 	FILE *f = fopen(keyfile, "rb");
 	if (!f) {
-		bp("cannot open keyfile");
+		be("Cannot open keyfile");
 		return 1;
 	}
 	hret = fread(key, BAUMCRYPT_KEYLEN, 1, f);
 	if (hret != 1) {
-		bp("cannot read keyfile");
+		be("Cannot read keyfile");
 		fclose(f);
 		return 1;
 	}

@@ -147,7 +147,7 @@ int main(int argc, char **argv) {
 		+ opt_print + opt_infect + opt_uninfect);
 
 	if (selected > 1) {
-		fprintf(stderr, "Too many options selected.\n");
+		be("Too many options selected.\n");
 	} else if (selected == 0) {
 		opt_print = 1;
 	}

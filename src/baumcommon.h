@@ -30,4 +30,6 @@ void baumcommon_setforce(char b);
 
 #define bp(...) do {if (baumcommon_verbose) {printf(__VA_ARGS__); printf("\n");}} while (0);
 
+#define be(...) do {fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n");} while (0);
+
 #endif
